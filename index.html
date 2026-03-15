@@ -83,6 +83,13 @@
       <button type="submit" class="calculate-btn">Calculate Pressure</button>
     </form>
 
+    <!-- Save / Load Profile -->
+    <div class="profile-section">
+      <button type="button" class="profile-btn save-btn" id="saveProfileBtn">💾 Save Profile</button>
+      <button type="button" class="profile-btn" id="loadProfileBtn">📂 Load Profile</button>
+    </div>
+    <p class="profile-notice" id="profileNotice"></p>
+
     <!-- Results Section -->
     <div id="results" class="results hidden">
       <h2>Recommended Tire Pressure</h2>
@@ -95,11 +102,26 @@
           <div class="tire-label">Front Tire</div>
           <div class="pressure-value" id="frontPressure">--</div>
           <div class="pressure-unit">PSI</div>
+          <div class="pressure-alt" id="frontPressureBar">-- bar</div>
         </div>
         <div class="pressure-card rear">
           <div class="tire-label">Rear Tire</div>
           <div class="pressure-value" id="rearPressure">--</div>
           <div class="pressure-unit">PSI</div>
+          <div class="pressure-alt" id="rearPressureBar">-- bar</div>
+        </div>
+      </div>
+
+      <!-- Visual pressure gauge -->
+      <div class="pressure-gauge-wrap">
+        <h3>Pressure Level</h3>
+        <div class="gauge-track">
+          <div class="gauge-fill" id="gaugeFill" style="width: 0%"></div>
+        </div>
+        <div class="gauge-labels">
+          <span id="gaugeMin">--</span>
+          <span id="gaugeLabel">Rear: -- PSI</span>
+          <span id="gaugeMax">--</span>
         </div>
       </div>
 

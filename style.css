@@ -409,7 +409,7 @@ footer p {
   margin-bottom: 0.75rem;
 }
 
-donate-btn {
+.donate-btn {
   display: inline-block;
   padding: 0.6rem 1.5rem;
   background: linear-gradient(135deg, #008CFF, #0070cc);
@@ -428,6 +428,87 @@ donate-btn {
 
 .donate-btn:active {
   transform: translateY(0);
+}
+
+/* Alternate pressure units */
+.pressure-alt {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 0.1rem;
+}
+
+/* Pressure gauge bar */
+.pressure-gauge-wrap {
+  margin-bottom: 1.2rem;
+}
+
+.pressure-gauge-wrap h3 {
+  font-size: 0.95rem;
+  color: #a0b4c0;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.gauge-track {
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #10b981, #38bdf8, #f59e0b);
+  transition: width 0.6s ease;
+}
+
+.gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Save Profile */
+.profile-section {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.profile-btn {
+  flex: 1;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #a0b4c0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.profile-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.profile-btn.save-btn:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.profile-notice {
+  font-size: 0.75rem;
+  color: #10b981;
+  text-align: center;
+  margin-top: 0.4rem;
+  min-height: 1.1em;
+  transition: opacity 0.4s;
 }
 
 /* Animation */

@@ -3,6 +3,8 @@
 // Calculates recommended front & rear PSI based on rider
 // weight, height, bike type, tire width, tubeless option,
 // and riding conditions.
+// Also supports Save/Load Profile via localStorage and
+// displays pressure in PSI and BAR with a visual gauge.
 // =========================================================
 
 (function () {
@@ -20,12 +22,27 @@
   const resultsSection = document.getElementById("results");
   const frontPressureEl = document.getElementById("frontPressure");
   const rearPressureEl = document.getElementById("rearPressure");
+  const frontPressureBarEl = document.getElementById("frontPressureBar");
+  const rearPressureBarEl = document.getElementById("rearPressureBar");
   const rangeTextEl = document.getElementById("rangeText");
   const tipsEl = document.getElementById("tips");
   const setupBadge = document.getElementById("setupBadge");
   const weightUnitLabel = document.getElementById("weightUnit");
   const heightUnitLabel = document.getElementById("heightUnit");
   const toggleButtons = document.querySelectorAll(".toggle-btn");
+
+  // Gauge elements
+  const gaugeFill = document.getElementById("gaugeFill");
+  const gaugeMin = document.getElementById("gaugeMin");
+  const gaugeMax = document.getElementById("gaugeMax");
+  const gaugeLabel = document.getElementById("gaugeLabel");
+
+  // Profile elements
+  const saveProfileBtn = document.getElementById("saveProfileBtn");
+  const loadProfileBtn = document.getElementById("loadProfileBtn");
+  const profileNotice = document.getElementById("profileNotice");
+
+  const PROFILE_KEY = "bikePressureProfile";
 
   let currentUnit = "imperial";
 
@@ -95,6 +112,11 @@
     return feet * 12;
   }
 
+  // ---------- PSI → BAR conversion ----------
+  function psiToBar(psi) {
+    return (psi * 0.0689476).toFixed(2);
+  }
+
   // ---------- CORE CALCULATION ----------
   function calculatePressure(weightLb, heightIn, bikeType, tireWidth, terrain, isTubeless) {
     const preset = bikePresets[bikeType];
@@ -144,6 +166,8 @@
       rear: Math.max(effectiveMinPsi, rearPsi),
       rangeLow: Math.max(effectiveMinPsi, rangeLow),
       rangeHigh: Math.min(preset.maxPsi, rangeHigh),
+      minPsi: effectiveMinPsi,
+      maxPsi: preset.maxPsi,
     };
   }
 
@@ -190,6 +214,75 @@
     return tips;
   }
 
+  // ---------- SAVE / LOAD PROFILE ----------
+  function showNotice(msg) {
+    profileNotice.textContent = msg;
+    profileNotice.style.opacity = "1";
+    setTimeout(() => { profileNotice.style.opacity = "0"; }, 2500);
+  }
+
+  saveProfileBtn.addEventListener("click", () => {
+    const profile = {
+      unit: currentUnit,
+      weight: weightInput.value,
+      height: heightInput.value,
+      bikeType: bikeTypeSelect.value,
+      tireWidth: tireWidthInput.value,
+      tubeless: tubelessCheckbox.checked,
+      terrain: terrainSelect.value,
+    };
+    try {
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      showNotice("\u2713 Profile saved!");
+    } catch (_) {
+      showNotice("Could not save profile.");
+    }
+  });
+
+  loadProfileBtn.addEventListener("click", () => {
+    try {
+      const raw = localStorage.getItem(PROFILE_KEY);
+      if (!raw) { showNotice("No saved profile found."); return; }
+      const profile = JSON.parse(raw);
+
+      // Restore unit toggle
+      if (profile.unit) {
+        currentUnit = profile.unit;
+        toggleButtons.forEach((b) => {
+          b.classList.toggle("active", b.dataset.unit === currentUnit);
+        });
+        if (currentUnit === "metric") {
+          weightUnitLabel.textContent = "kg";
+          heightUnitLabel.textContent = "cm";
+        } else {
+          weightUnitLabel.textContent = "lb";
+          heightUnitLabel.textContent = "ft";
+        }
+      }
+
+      weightInput.value = profile.weight || "";
+      heightInput.value = profile.height || "";
+      if (profile.bikeType) bikeTypeSelect.value = profile.bikeType;
+      tireWidthInput.value = profile.tireWidth || "";
+      tubelessCheckbox.checked = !!profile.tubeless;
+      tubelessCheckbox.dispatchEvent(new Event("change"));
+      if (profile.terrain) terrainSelect.value = profile.terrain;
+
+      showNotice("\u2713 Profile loaded!");
+    } catch (_) {
+      showNotice("Could not load profile.");
+    }
+  });
+
+  // ---------- UPDATE GAUGE ----------
+  function updateGauge(rear, minPsi, maxPsi) {
+    const pct = Math.min(100, Math.max(0, ((rear - minPsi) / (maxPsi - minPsi)) * 100));
+    gaugeFill.style.width = pct + "%";
+    gaugeMin.textContent = minPsi + " PSI";
+    gaugeMax.textContent = maxPsi + " PSI";
+    gaugeLabel.textContent = "Rear: " + rear + " PSI";
+  }
+
   // ---------- FORM SUBMISSION ----------
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -216,6 +309,9 @@
 
     frontPressureEl.textContent = result.front;
     rearPressureEl.textContent = result.rear;
+    frontPressureBarEl.textContent = psiToBar(result.front) + " bar";
+    rearPressureBarEl.textContent = psiToBar(result.rear) + " bar";
+
     rangeTextEl.textContent = "Front: " + result.rangeLow + "\u2013" + Math.round(result.front * 1.08) + " PSI  |  Rear: " + Math.round(result.rear * 0.92) + "\u2013" + result.rangeHigh + " PSI";
 
     if (isTubeless) {
@@ -225,6 +321,8 @@
       setupBadge.textContent = "\u26aa Tubed Setup";
       setupBadge.className = "setup-badge tubed";
     }
+
+    updateGauge(result.rear, result.minPsi, result.maxPsi);
 
     const tips = generateTips(bikeType, terrain, tireWidth, isTubeless);
     tipsEl.innerHTML =
