@@ -377,8 +377,8 @@ select option {
   position: relative;
 }
 
-tips ul li::before {
-  content: '💡';
+.tips ul li::before {
+  content: '\1F4A1';
   position: absolute;
   left: 0;
   top: 0;
@@ -394,6 +394,40 @@ footer p {
   font-size: 0.8rem;
   color: #64748b;
   line-height: 1.5;
+}
+
+/* Donate Section */
+.donate-section {
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.donate-section p {
+  font-size: 0.85rem;
+  color: #a0b4c0;
+  margin-bottom: 0.75rem;
+}
+
+donate-btn {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background: linear-gradient(135deg, #008CFF, #0070cc);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.donate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 140, 255, 0.35);
+}
+
+.donate-btn:active {
+  transform: translateY(0);
 }
 
 /* Animation */
