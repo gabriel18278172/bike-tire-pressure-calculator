@@ -4,11 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO Upgrade -->
   <title>Bike Tire Pressure Calculator (MTB, Road, PSI Tool)</title>
   <meta name="description" content="Free bike tire pressure calculator for mountain bikes, road bikes, and more. Get the perfect PSI based on your weight, tire width, and riding conditions.">
 
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .donate-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .donate-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      color: white;
+      background: #635bff;
+      transition: transform 0.1s ease;
+    }
+
+    .donate-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -18,13 +41,11 @@
     </header>
 
     <form id="pressureForm">
-      <!-- Unit Toggle -->
       <div class="unit-toggle">
         <button type="button" class="toggle-btn active" data-unit="imperial">Imperial (lb / ft)</button>
         <button type="button" class="toggle-btn" data-unit="metric">Metric (kg / cm)</button>
       </div>
 
-      <!-- Weight Input -->
       <div class="input-group">
         <label for="weight">Weight</label>
         <div class="input-with-unit">
@@ -33,7 +54,6 @@
         </div>
       </div>
 
-      <!-- Height Input -->
       <div class="input-group">
         <label for="height">Height</label>
         <div class="input-with-unit">
@@ -42,7 +62,6 @@
         </div>
       </div>
 
-      <!-- Bike Type -->
       <div class="input-group">
         <label for="bikeType">Bike Type</label>
         <select id="bikeType" required>
@@ -55,13 +74,11 @@
         </select>
       </div>
 
-      <!-- Tire Width -->
       <div class="input-group">
         <label for="tireWidth">Tire Width (mm)</label>
         <input type="number" id="tireWidth" placeholder="e.g. 25, 32, 40" min="20" max="120" required>
       </div>
 
-      <!-- Tubeless Toggle -->
       <div class="input-group tubeless-group">
         <label class="toggle-label">
           <span class="toggle-text">Tubeless Tires</span>
@@ -70,10 +87,9 @@
             <span class="slider"></span>
           </div>
         </label>
-        <p class="tubeless-hint" id="tubelessHint">Tubeless tires can safely run at lower pressures for better grip and comfort.</p>
+        <p class="tubeless-hint">Tubeless tires can safely run at lower pressures for better grip and comfort.</p>
       </div>
 
-      <!-- Riding Conditions -->
       <div class="input-group">
         <label for="terrain">Riding Conditions</label>
         <select id="terrain">
@@ -87,11 +103,9 @@
       <button type="submit" class="calculate-btn">Calculate Pressure</button>
     </form>
 
-    <!-- Results Section -->
     <div id="results" class="results hidden">
       <h2>Recommended Tire Pressure</h2>
 
-      <!-- Tubeless Badge -->
       <div class="setup-badge" id="setupBadge"></div>
 
       <div class="pressure-cards">
@@ -114,23 +128,24 @@
 
       <div class="tips" id="tips"></div>
 
-      <!-- 🔥 NEW: Support section right after results -->
+      <!-- 💰 STRIPE BUTTONS -->
       <div class="donate-section">
-        <p>🙏 This tool is 100% free — if it helped you, consider supporting it ❤️</p>
-        <p style="margin-bottom: 8px;">💡 Suggested tips: $1 • $3 • $5</p>
-        <a href="https://venmo.com/GabrielBerg12" target="_blank" class="donate-btn">💙 Tip via Venmo</a>
-        <p style="margin-top:10px; font-size: 12px; opacity: 0.7;">Built by an independent developer 🚀</p>
+        <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
+
+        <div class="donate-buttons">
+          <a href="https://buy.stripe.com/28E6oH3uzelodpA7cu3ZK02" target="_blank" class="donate-btn">$1</a>
+          <a href="https://buy.stripe.com/fZu14nghl3GK4T468q3ZK01" target="_blank" class="donate-btn">$3</a>
+          <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" class="donate-btn">$5</a>
+        </div>
+
+        <p style="margin-top:10px; font-size: 12px; opacity: 0.7;">
+          Built by an independent developer 🚀
+        </p>
       </div>
     </div>
 
     <footer>
       <p>⚠️ These are recommendations. Always stay within the min/max range printed on your tire sidewall.</p>
-
-      <!-- Secondary support reminder -->
-      <div class="donate-section">
-        <p>🚴 Enjoying the tool? Tips help keep it running!</p>
-        <a href="https://venmo.com/GabrielBerg12" target="_blank" class="donate-btn">💙 Support</a>
-      </div>
     </footer>
   </div>
 
