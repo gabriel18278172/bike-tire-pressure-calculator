@@ -8,55 +8,18 @@
   <meta name="description" content="Free bike tire pressure calculator for mountain bikes, road bikes, and more. Get the perfect PSI based on your weight, tire width, and riding conditions.">
 
   <link rel="stylesheet" href="style.css">
-
-  <style>
-    .donate-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .donate-btn {
-      padding: 10px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      color: white;
-      background: #635bff;
-      transition: transform 0.1s ease;
-    }
-
-    .donate-btn:hover {
-      transform: scale(1.05);
-    }
-
-    .share-btn {
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: none;
-      background: #28a745;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .share-btn:hover {
-      transform: scale(1.05);
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>🚲 Bike Tire Pressure Calculator</h1>
 
+      <!-- Better hook -->
       <p class="subtitle">
         Stop guessing your tire pressure — get it right instantly
       </p>
 
+      <!-- SHARE BUTTON -->
       <button onclick="copyLink()" class="share-btn">
         📋 Copy & Share This Tool
       </button>
@@ -125,6 +88,7 @@
       <button type="submit" class="calculate-btn">Calculate Pressure</button>
     </form>
 
+    <!-- RESULTS -->
     <div id="results" class="results hidden">
       <h2>Recommended Tire Pressure</h2>
 
@@ -150,6 +114,7 @@
 
       <div class="tips" id="tips"></div>
 
+      <!-- 💰 STRIPE -->
       <div class="donate-section">
         <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
 
@@ -170,6 +135,7 @@
     </footer>
   </div>
 
+  <!-- SHARE SCRIPT -->
   <script>
     function copyLink() {
       navigator.clipboard.writeText(window.location.href);
