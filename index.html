@@ -17,37 +17,33 @@
       flex-wrap: wrap;
       margin-top: 10px;
     }
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Bike Tire Pressure Calculator (MTB, Road, PSI Tool)</title>
-  <meta name="description" content="Free bike tire pressure calculator for mountain bikes, road bikes, and more. Get the perfect PSI based on your weight, tire width, and riding conditions.">
+    .donate-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+      color: white;
+      background: #635bff;
+      transition: transform 0.1s ease;
+    }
 
-  <link rel="stylesheet" href="style.css">
+    .donate-btn:hover {
+      transform: scale(1.05);
+    }
 
-  <style>
-    .donate-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
+    .share-btn {
       margin-top: 10px;
-    }
-
-    .donate-btn {
-      padding: 10px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #28a745;
       color: white;
-      background: #635bff;
-      transition: transform 0.1s ease;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    .donate-btn:hover {
+    .share-btn:hover {
       transform: scale(1.05);
     }
   </style>
@@ -56,7 +52,14 @@
   <div class="container">
     <header>
       <h1>🚲 Bike Tire Pressure Calculator</h1>
-      <p class="subtitle">Find your optimal tire pressure based on your weight and height</p>
+
+      <p class="subtitle">
+        Stop guessing your tire pressure — get it right instantly
+      </p>
+
+      <button onclick="copyLink()" class="share-btn">
+        📋 Copy & Share This Tool
+      </button>
     </header>
 
     <form id="pressureForm">
@@ -147,7 +150,6 @@
 
       <div class="tips" id="tips"></div>
 
-      <!-- 💰 STRIPE BUTTONS -->
       <div class="donate-section">
         <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
 
@@ -168,140 +170,12 @@
     </footer>
   </div>
 
-  <script src="app.js"></script>
-</body>
-</html>
-
-    .donate-btn {
-      padding: 10px 16px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      color: white;
-      background: #635bff;
-      transition: transform 0.1s ease;
+  <script>
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied! Share it with friends 🚴");
     }
-
-    .donate-btn:hover {
-      transform: scale(1.05);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>🚲 Bike Tire Pressure Calculator</h1>
-      <p class="subtitle">Find your optimal tire pressure based on your weight and height</p>
-    </header>
-
-    <form id="pressureForm">
-      <div class="unit-toggle">
-        <button type="button" class="toggle-btn active" data-unit="imperial">Imperial (lb / ft)</button>
-        <button type="button" class="toggle-btn" data-unit="metric">Metric (kg / cm)</button>
-      </div>
-
-      <div class="input-group">
-        <label for="weight">Weight</label>
-        <div class="input-with-unit">
-          <input type="number" id="weight" placeholder="Enter your weight" min="1" required>
-          <span class="unit-label" id="weightUnit">lb</span>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label for="height">Height</label>
-        <div class="input-with-unit">
-          <input type="number" id="height" placeholder="e.g. 5.8 for 5 ft 10 in" min="1" step="0.1" required>
-          <span class="unit-label" id="heightUnit">ft</span>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label for="bikeType">Bike Type</label>
-        <select id="bikeType" required>
-          <option value="" disabled selected>Select your bike type</option>
-          <option value="road">Road Bike</option>
-          <option value="hybrid">Hybrid / Commuter</option>
-          <option value="mountain">Mountain Bike</option>
-          <option value="gravel">Gravel / Cyclocross</option>
-          <option value="fat">Fat Bike</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label for="tireWidth">Tire Width (mm)</label>
-        <input type="number" id="tireWidth" placeholder="e.g. 25, 32, 40" min="20" max="120" required>
-      </div>
-
-      <div class="input-group tubeless-group">
-        <label class="toggle-label">
-          <span class="toggle-text">Tubeless Tires</span>
-          <div class="tubeless-toggle">
-            <input type="checkbox" id="tubeless">
-            <span class="slider"></span>
-          </div>
-        </label>
-        <p class="tubeless-hint">Tubeless tires can safely run at lower pressures for better grip and comfort.</p>
-      </div>
-
-      <div class="input-group">
-        <label for="terrain">Riding Conditions</label>
-        <select id="terrain">
-          <option value="dry">Dry Pavement</option>
-          <option value="wet">Wet / Rainy</option>
-          <option value="mixed">Mixed Terrain</option>
-          <option value="offroad">Off-Road / Trail</option>
-        </select>
-      </div>
-
-      <button type="submit" class="calculate-btn">Calculate Pressure</button>
-    </form>
-
-    <div id="results" class="results hidden">
-      <h2>Recommended Tire Pressure</h2>
-
-      <div class="setup-badge" id="setupBadge"></div>
-
-      <div class="pressure-cards">
-        <div class="pressure-card front">
-          <div class="tire-label">Front Tire</div>
-          <div class="pressure-value" id="frontPressure">--</div>
-          <div class="pressure-unit">PSI</div>
-        </div>
-        <div class="pressure-card rear">
-          <div class="tire-label">Rear Tire</div>
-          <div class="pressure-value" id="rearPressure">--</div>
-          <div class="pressure-unit">PSI</div>
-        </div>
-      </div>
-
-      <div class="pressure-range">
-        <h3>Acceptable Range</h3>
-        <p id="rangeText">--</p>
-      </div>
-
-      <div class="tips" id="tips"></div>
-
-      <!-- 💰 STRIPE BUTTONS -->
-      <div class="donate-section">
-        <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
-
-        <div class="donate-buttons">
-          <a href="https://buy.stripe.com/28E6oH3uzelodpA7cu3ZK02" target="_blank" class="donate-btn">$1</a>
-          <a href="https://buy.stripe.com/fZu14nghl3GK4T468q3ZK01" target="_blank" class="donate-btn">$3</a>
-          <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" class="donate-btn">$5</a>
-        </div>
-
-        <p style="margin-top:10px; font-size: 12px; opacity: 0.7;">
-          Built by an independent developer 🚀
-        </p>
-      </div>
-    </div>
-
-    <footer>
-      <p>⚠️ These are recommendations. Always stay within the min/max range printed on your tire sidewall.</p>
-    </footer>
-  </div>
+  </script>
 
   <script src="app.js"></script>
 </body>
