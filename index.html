@@ -18,7 +18,6 @@
         Stop guessing your tire pressure — get it right instantly
       </p>
 
-      <!-- SHARE BUTTON -->
       <button onclick="copyLink()" class="share-btn">
         📋 Copy & Share This Tool
       </button>
@@ -87,7 +86,6 @@
       <button type="submit" class="calculate-btn">Calculate Pressure</button>
     </form>
 
-    <!-- RESULTS -->
     <div id="results" class="results hidden">
       <h2>Recommended Tire Pressure</h2>
 
@@ -113,7 +111,6 @@
 
       <div class="tips" id="tips"></div>
 
-      <!-- 💰 SUPPORT -->
       <div class="donate-section">
         <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
 
@@ -123,23 +120,16 @@
           <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" class="donate-btn">$5</a>
         </div>
 
-        <p style="margin-top:10px; font-size: 12px; opacity: 0.7;">
-          Built by an independent developer 🚀
-        </p>
+        <p class="built-by">Built by an independent developer 🚀</p>
       </div>
     </div>
 
-    <!-- FOOTER FIXED -->
-    <footer style="text-align:center; margin-top:20px;">
+    <footer class="footer">
       <p>⚠️ These are recommendations. Always stay within the min/max range printed on your tire sidewall.</p>
-
-      <p style="font-size:12px; opacity:0.6; margin-top:10px;">
-        © 2026 Gabriel Berg. All rights reserved.
-      </p>
+      <p class="copyright">© 2026 Gabriel Berg. All rights reserved.</p>
     </footer>
   </div>
 
-  <!-- SHARE SCRIPT -->
   <script>
     function copyLink() {
       navigator.clipboard.writeText(window.location.href);
