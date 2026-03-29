@@ -409,7 +409,7 @@ footer p {
   margin-bottom: 0.75rem;
 }
 
-donate-btn {
+.donate-btn {
   display: inline-block;
   padding: 0.6rem 1.5rem;
   background: linear-gradient(135deg, #008CFF, #0070cc);
