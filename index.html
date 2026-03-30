@@ -19,7 +19,7 @@
       </p>
 
       <button onclick="copyLink()" class="share-btn">
-        📋 Copy & Share This Tool
+        🔗 Share This Tool
       </button>
     </header>
 
@@ -115,9 +115,9 @@
         <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
 
         <div class="donate-buttons">
-          <a href="https://buy.stripe.com/28E6oH3uzelodpA7cu3ZK02" target="_blank" class="donate-btn">$1</a>
-          <a href="https://buy.stripe.com/fZu14nghl3GK4T468q3ZK01" target="_blank" class="donate-btn">$3</a>
-          <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" class="donate-btn">$5</a>
+          <a href="https://buy.stripe.com/28E6oH3uzelodpA7cu3ZK02" target="_blank" onclick="track('tip-1')" class="donate-btn">$1</a>
+          <a href="https://buy.stripe.com/fZu14nghl3GK4T468q3ZK01" target="_blank" onclick="track('tip-3')" class="donate-btn">$3</a>
+          <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" onclick="track('tip-5')" class="donate-btn">$5</a>
         </div>
 
         <p class="built-by">Built by an independent developer 🚀</p>
@@ -130,18 +130,30 @@
     </footer>
   </div>
 
+  <!-- SHARE FUNCTION (UPDATED) -->
   <script>
     function copyLink() {
       navigator.clipboard.writeText(window.location.href);
+      track("share");
       alert("Link copied! Share it with friends 🚴");
     }
   </script>
 
   <script src="app.js"></script>
-<script>
-function track(event) {
-  fetch("https://bike-analytics.vercel.app/api/track?event=" + event);
-}
-</script>
+
+  <!-- TRACKING -->
+  <script>
+    function track(event) {
+      fetch("https://bike-analytics.vercel.app/api/track?event=" + event);
+    }
+
+    // Track visit
+    track("visit");
+
+    // Track calculator usage
+    document.getElementById("pressureForm").addEventListener("submit", () => {
+      track("calculate");
+    });
+  </script>
 </body>
 </html>
