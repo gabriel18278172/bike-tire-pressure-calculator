@@ -138,5 +138,10 @@
   </script>
 
   <script src="app.js"></script>
+<script>
+function track(event) {
+  fetch("https://bike-analytics.vercel.app/api/track?event=" + event);
+}
+</script>
 </body>
 </html>
