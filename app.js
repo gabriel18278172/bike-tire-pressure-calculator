@@ -31,7 +31,7 @@
     try {
       const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
       if (!savedState || !Array.isArray(savedState.menu)) {
-        throw new Error("Missing saved state.");
+        throw new Error("Invalid or missing saved state - loading defaults.");
       }
 
       return {
@@ -110,6 +110,14 @@
       element.textContent = text;
     }
     return element;
+  }
+
+  function createItemId() {
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      return "item-" + window.crypto.randomUUID();
+    }
+
+    return "item-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 10);
   }
 
   function getMenuItem(itemId) {
@@ -223,7 +231,7 @@
           createElement(
             "p",
             "menu-category",
-            entry.item.category ? entry.item.category + " • " + formatCurrency(entry.item.price) + " each" : formatCurrency(entry.item.price) + " each"
+            (entry.item.category ? entry.item.category + " • " : "") + formatCurrency(entry.item.price) + " each"
           )
         );
 
@@ -327,7 +335,7 @@
     }
 
     state.menu.unshift({
-      id: "item-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7),
+      id: createItemId(),
       name: name,
       category: category,
       price: Number(price.toFixed(2)),

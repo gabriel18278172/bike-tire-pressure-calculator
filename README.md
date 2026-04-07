@@ -1,4 +1,4 @@
-# bike-tire-pressure-calculator
+# Menu Manager & Fake Checkout
 
 A polished static menu manager and fake checkout app.
 
