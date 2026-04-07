@@ -1,237 +1,369 @@
-// =========================================================
-// Bike Tire Pressure Calculator — app.js
-// Calculates recommended front & rear PSI based on rider
-// weight, height, bike type, tire width, tubeless option,
-// and riding conditions.
-// =========================================================
-
 (function () {
   "use strict";
 
-  // ---------- DOM REFERENCES ----------
-  const form = document.getElementById("pressureForm");
-  const weightInput = document.getElementById("weight");
-  const heightInput = document.getElementById("height");
-  const bikeTypeSelect = document.getElementById("bikeType");
-  const tireWidthInput = document.getElementById("tireWidth");
-  const tubelessCheckbox = document.getElementById("tubeless");
-  const tubelessHint = document.getElementById("tubelessHint");
-  const terrainSelect = document.getElementById("terrain");
-  const resultsSection = document.getElementById("results");
-  const frontPressureEl = document.getElementById("frontPressure");
-  const rearPressureEl = document.getElementById("rearPressure");
-  const rangeTextEl = document.getElementById("rangeText");
-  const tipsEl = document.getElementById("tips");
-  const setupBadge = document.getElementById("setupBadge");
-  const weightUnitLabel = document.getElementById("weightUnit");
-  const heightUnitLabel = document.getElementById("heightUnit");
-  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  const STORAGE_KEY = "fake-menu-checkout-state";
+  const defaultMenu = [
+    { id: "item-burger", name: "Classic Burger", category: "Main dish", price: 8.5 },
+    { id: "item-fries", name: "Crispy Fries", category: "Side", price: 3.25 },
+    { id: "item-soda", name: "Sparkling Soda", category: "Drink", price: 2.75 },
+  ];
 
-  let currentUnit = "imperial";
+  const menuForm = document.getElementById("menuForm");
+  const itemNameInput = document.getElementById("itemName");
+  const itemCategoryInput = document.getElementById("itemCategory");
+  const itemPriceInput = document.getElementById("itemPrice");
+  const menuList = document.getElementById("menuList");
+  const orderList = document.getElementById("orderList");
+  const menuCount = document.getElementById("menuCount");
+  const orderCount = document.getElementById("orderCount");
+  const orderTotal = document.getElementById("orderTotal");
+  const summaryTotal = document.getElementById("summaryTotal");
+  const heroBalance = document.getElementById("heroBalance");
+  const walletBalance = document.getElementById("walletBalance");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+  const clearOrderBtn = document.getElementById("clearOrderBtn");
+  const resetBalanceBtn = document.getElementById("resetBalanceBtn");
+  const statusMessage = document.getElementById("statusMessage");
 
-  // ---------- UNIT TOGGLE ----------
-  toggleButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      toggleButtons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      currentUnit = btn.dataset.unit;
+  const state = loadState();
 
-      if (currentUnit === "metric") {
-        weightUnitLabel.textContent = "kg";
-        heightUnitLabel.textContent = "cm";
-        weightInput.placeholder = "Enter your weight in kg";
-        heightInput.placeholder = "Enter your height in cm";
-        heightInput.step = "1";
-      } else {
-        weightUnitLabel.textContent = "lb";
-        heightUnitLabel.textContent = "ft";
-        weightInput.placeholder = "Enter your weight in lb";
-        heightInput.placeholder = "e.g. 5.8 for 5 ft 10 in";
-        heightInput.step = "0.1";
+  function loadState() {
+    try {
+      const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (!savedState || !Array.isArray(savedState.menu)) {
+        throw new Error("Missing saved state.");
+      }
+
+      return {
+        menu: savedState.menu
+          .filter(isValidMenuItem)
+          .map((item) => ({
+            id: item.id,
+            name: item.name.trim(),
+            category: typeof item.category === "string" ? item.category.trim() : "",
+            price: Number(item.price),
+          })),
+        order: sanitizeOrder(savedState.order),
+        balance: Number.isFinite(Number(savedState.balance)) ? Number(savedState.balance) : 0,
+      };
+    } catch (error) {
+      return {
+        menu: defaultMenu.slice(),
+        order: {},
+        balance: 0,
+      };
+    }
+  }
+
+  function isValidMenuItem(item) {
+    return Boolean(
+      item &&
+      typeof item.id === "string" &&
+      typeof item.name === "string" &&
+      item.name.trim() &&
+      Number.isFinite(Number(item.price)) &&
+      Number(item.price) > 0
+    );
+  }
+
+  function sanitizeOrder(order) {
+    const cleanOrder = {};
+
+    if (!order || typeof order !== "object") {
+      return cleanOrder;
+    }
+
+    Object.keys(order).forEach((itemId) => {
+      const quantity = Number(order[itemId]);
+      if (Number.isInteger(quantity) && quantity > 0) {
+        cleanOrder[itemId] = quantity;
       }
     });
-  });
 
-  // ---------- TUBELESS HINT UPDATE ----------
-  tubelessCheckbox.addEventListener("change", () => {
-    if (tubelessCheckbox.checked) {
-      tubelessHint.textContent =
-        "\u2713 Tubeless mode \u2014 pressure will be reduced for better grip, comfort, and puncture resistance.";
-      tubelessHint.classList.add("active");
-    } else {
-      tubelessHint.textContent =
-        "Tubeless tires can safely run at lower pressures for better grip and comfort.";
-      tubelessHint.classList.remove("active");
-    }
-  });
-
-  // ---------- BIKE TYPE PRESETS ----------
-  const bikePresets = {
-    road:     { basePsi: 90,  minPsi: 70,  maxPsi: 130, tireMin: 23, tireMax: 32  },
-    hybrid:   { basePsi: 65,  minPsi: 45,  maxPsi: 85,  tireMin: 28, tireMax: 47  },
-    mountain: { basePsi: 30,  minPsi: 20,  maxPsi: 50,  tireMin: 40, tireMax: 65  },
-    gravel:   { basePsi: 45,  minPsi: 30,  maxPsi: 70,  tireMin: 32, tireMax: 50  },
-    fat:      { basePsi: 10,  minPsi: 5,   maxPsi: 20,  tireMin: 60, tireMax: 120 },
-  };
-
-  const tubelessMinOverride = {
-    road:     60,
-    hybrid:   35,
-    mountain: 15,
-    gravel:   22,
-    fat:      3,
-  };
-
-  // ---------- AUTO-FILL TIRE WIDTH ----------
-  bikeTypeSelect.addEventListener("change", () => {
-    const preset = bikePresets[bikeTypeSelect.value];
-    if (preset && !tireWidthInput.value) {
-      tireWidthInput.value = Math.round((preset.tireMin + preset.tireMax) / 2);
-    }
-  });
-
-  // ---------- CONVERT FEET TO INCHES ----------
-  function feetToInches(feet) {
-    return feet * 12;
+    return cleanOrder;
   }
 
-  // ---------- CORE CALCULATION ----------
-  function calculatePressure(weightLb, heightIn, bikeType, tireWidth, terrain, isTubeless) {
-    const preset = bikePresets[bikeType];
-    if (!preset) return null;
+  function saveState() {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        menu: state.menu,
+        order: state.order,
+        balance: state.balance,
+      })
+    );
+  }
 
-    const effectiveMinPsi = isTubeless
-      ? tubelessMinOverride[bikeType]
-      : preset.minPsi;
+  function formatCurrency(value) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(value);
+  }
 
-    let psi = preset.basePsi;
-
-    const weightDelta = weightLb - 165;
-    const weightFactor = bikeType === "road" ? 0.28 : bikeType === "fat" ? 0.04 : 0.15;
-    psi += weightDelta * weightFactor;
-
-    const heightDelta = heightIn - 68;
-    psi += heightDelta * 0.15;
-
-    const refWidth = (preset.tireMin + preset.tireMax) / 2;
-    const widthDelta = tireWidth - refWidth;
-    const widthFactor = bikeType === "road" ? 1.2 : bikeType === "fat" ? 0.08 : 0.4;
-    psi -= widthDelta * widthFactor;
-
-    const terrainAdjust = {
-      dry: 0,
-      wet: -5,
-      mixed: -3,
-      offroad: -7,
-    };
-    psi += terrainAdjust[terrain] || 0;
-
-    if (isTubeless) {
-      const tubelessReduction = bikeType === "road" ? 0.10 : 0.15;
-      psi *= (1 - tubelessReduction);
+  function createElement(tagName, className, text) {
+    const element = document.createElement(tagName);
+    if (className) {
+      element.className = className;
     }
+    if (typeof text === "string") {
+      element.textContent = text;
+    }
+    return element;
+  }
 
-    psi = Math.max(effectiveMinPsi, Math.min(preset.maxPsi, psi));
+  function getMenuItem(itemId) {
+    return state.menu.find((item) => item.id === itemId) || null;
+  }
 
-    const rearPsi = Math.round(psi);
-    const frontPsi = Math.round(psi * 0.9);
+  function getOrderEntries() {
+    return Object.keys(state.order)
+      .map((itemId) => {
+        const item = getMenuItem(itemId);
+        if (!item) {
+          delete state.order[itemId];
+          return null;
+        }
 
-    const rangeLow = Math.round(frontPsi * 0.92);
-    const rangeHigh = Math.round(rearPsi * 1.08);
+        return {
+          item: item,
+          quantity: state.order[itemId],
+          lineTotal: item.price * state.order[itemId],
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function getOrderTotals() {
+    const entries = getOrderEntries();
+    const itemCount = entries.reduce(function (sum, entry) {
+      return sum + entry.quantity;
+    }, 0);
+    const total = entries.reduce(function (sum, entry) {
+      return sum + entry.lineTotal;
+    }, 0);
 
     return {
-      front: Math.max(effectiveMinPsi, frontPsi),
-      rear: Math.max(effectiveMinPsi, rearPsi),
-      rangeLow: Math.max(effectiveMinPsi, rangeLow),
-      rangeHigh: Math.min(preset.maxPsi, rangeHigh),
+      entries: entries,
+      itemCount: itemCount,
+      total: total,
     };
   }
 
-  // ---------- TIPS GENERATOR ----------
-  function generateTips(bikeType, terrain, tireWidth, isTubeless) {
-    const tips = [];
-
-    if (isTubeless) {
-      tips.push("Tubeless setup detected \u2014 you can safely run lower pressures without pinch-flat risk.");
-      tips.push("Check your sealant every 2\u20133 months and top it up as needed.");
-      if (bikeType === "road") {
-        tips.push("Tubeless road tires offer lower rolling resistance at reduced pressures.");
-      }
-      if (bikeType === "mountain" || bikeType === "gravel") {
-        tips.push("Tubeless shines off-road \u2014 the sealant handles small punctures automatically.");
-      }
-    } else {
-      if (bikeType === "mountain" || bikeType === "gravel") {
-        tips.push("Consider going tubeless for better puncture resistance and lower pressures.");
-      }
-    }
-
-    if (bikeType === "road") {
-      tips.push("Check pressure before every ride \u2014 road tires lose air quickly.");
-    }
-    if (bikeType === "mountain" || bikeType === "fat") {
-      tips.push("Lower pressure improves grip on loose or rocky terrain.");
-    }
-    if (bikeType === "gravel") {
-      tips.push("Experiment +/-3 PSI to find the sweet spot for comfort vs. speed.");
-    }
-    if (terrain === "wet") {
-      tips.push("Lower pressure helps with traction on wet surfaces.");
-    }
-    if (terrain === "offroad" && !isTubeless) {
-      tips.push("Consider running tubeless for better puncture resistance off-road.");
-    }
-    if (tireWidth >= 40) {
-      tips.push("Wide tires perform best at lower pressures \u2014 don't over-inflate.");
-    }
-    tips.push("Always check the min/max PSI printed on your tire sidewall.");
-    tips.push("Use a quality floor pump with a gauge for accurate inflation.");
-
-    return tips;
+  function setStatus(message) {
+    statusMessage.textContent = message;
   }
 
-  // ---------- FORM SUBMISSION ----------
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  function renderMenu() {
+    menuList.textContent = "";
 
-    let weight = parseFloat(weightInput.value);
-    let height = parseFloat(heightInput.value);
-    const bikeType = bikeTypeSelect.value;
-    const tireWidth = parseFloat(tireWidthInput.value);
-    const isTubeless = tubelessCheckbox.checked;
-    const terrain = terrainSelect.value;
-
-    if (!weight || !height || !bikeType || !tireWidth) return;
-
-    let heightIn;
-    if (currentUnit === "metric") {
-      weight = weight * 2.20462;
-      heightIn = height / 2.54;
-    } else {
-      heightIn = feetToInches(height);
+    if (!state.menu.length) {
+      const emptyState = createElement("div", "empty-state");
+      emptyState.appendChild(createElement("strong", "", "No menu items yet"));
+      emptyState.appendChild(createElement("p", "", "Add your first item to start taking orders."));
+      menuList.appendChild(emptyState);
+      return;
     }
 
-    const result = calculatePressure(weight, heightIn, bikeType, tireWidth, terrain, isTubeless);
-    if (!result) return;
+    state.menu.forEach((item) => {
+      const card = createElement("article", "menu-card");
+      const info = createElement("div", "menu-card-info");
+      const topRow = createElement("div", "menu-card-top");
+      const price = createElement("strong", "menu-price", formatCurrency(item.price));
+      const name = createElement("h3", "", item.name);
 
-    frontPressureEl.textContent = result.front;
-    rearPressureEl.textContent = result.rear;
-    rangeTextEl.textContent = "Front: " + result.rangeLow + "\u2013" + Math.round(result.front * 1.08) + " PSI  |  Rear: " + Math.round(result.rear * 0.92) + "\u2013" + result.rangeHigh + " PSI";
+      topRow.appendChild(name);
+      topRow.appendChild(price);
+      info.appendChild(topRow);
 
-    if (isTubeless) {
-      setupBadge.textContent = "\ud83d\udfe2 Tubeless Setup";
-      setupBadge.className = "setup-badge tubeless";
+      const meta = item.category ? item.category : "Uncategorized";
+      info.appendChild(createElement("p", "menu-category", meta));
+
+      const actions = createElement("div", "menu-actions");
+      const addButton = createElement("button", "small-primary-btn", "Add to order");
+      addButton.type = "button";
+      addButton.addEventListener("click", function () {
+        addToOrder(item.id);
+      });
+
+      const removeButton = createElement("button", "small-ghost-btn", "Remove");
+      removeButton.type = "button";
+      removeButton.addEventListener("click", function () {
+        removeMenuItem(item.id);
+      });
+
+      actions.appendChild(addButton);
+      actions.appendChild(removeButton);
+      card.appendChild(info);
+      card.appendChild(actions);
+      menuList.appendChild(card);
+    });
+  }
+
+  function renderOrder() {
+    const totals = getOrderTotals();
+    orderList.textContent = "";
+
+    if (!totals.entries.length) {
+      const emptyState = createElement("div", "empty-state");
+      emptyState.appendChild(createElement("strong", "", "No items in the order"));
+      emptyState.appendChild(createElement("p", "", "Add anything from your menu to build the customer order."));
+      orderList.appendChild(emptyState);
     } else {
-      setupBadge.textContent = "\u26aa Tubed Setup";
-      setupBadge.className = "setup-badge tubed";
+      totals.entries.forEach((entry) => {
+        const orderItem = createElement("article", "order-card");
+        const details = createElement("div", "order-details");
+        const titleRow = createElement("div", "order-title-row");
+
+        titleRow.appendChild(createElement("h3", "", entry.item.name));
+        titleRow.appendChild(createElement("strong", "", formatCurrency(entry.lineTotal)));
+
+        details.appendChild(titleRow);
+        details.appendChild(
+          createElement(
+            "p",
+            "menu-category",
+            entry.item.category ? entry.item.category + " • " + formatCurrency(entry.item.price) + " each" : formatCurrency(entry.item.price) + " each"
+          )
+        );
+
+        const controls = createElement("div", "quantity-controls");
+        const decreaseButton = createElement("button", "qty-btn", "−");
+        decreaseButton.type = "button";
+        decreaseButton.setAttribute("aria-label", "Decrease quantity for " + entry.item.name);
+        decreaseButton.addEventListener("click", function () {
+          changeQuantity(entry.item.id, -1);
+        });
+
+        const quantity = createElement("span", "qty-value", String(entry.quantity));
+
+        const increaseButton = createElement("button", "qty-btn", "+");
+        increaseButton.type = "button";
+        increaseButton.setAttribute("aria-label", "Increase quantity for " + entry.item.name);
+        increaseButton.addEventListener("click", function () {
+          changeQuantity(entry.item.id, 1);
+        });
+
+        const removeButton = createElement("button", "link-btn", "Remove");
+        removeButton.type = "button";
+        removeButton.addEventListener("click", function () {
+          delete state.order[entry.item.id];
+          persistAndRender();
+          setStatus(entry.item.name + " removed from the order.");
+        });
+
+        controls.appendChild(decreaseButton);
+        controls.appendChild(quantity);
+        controls.appendChild(increaseButton);
+        controls.appendChild(removeButton);
+
+        orderItem.appendChild(details);
+        orderItem.appendChild(controls);
+        orderList.appendChild(orderItem);
+      });
     }
 
-    const tips = generateTips(bikeType, terrain, tireWidth, isTubeless);
-    tipsEl.innerHTML =
-      "<h3>Tips for Your Setup</h3>" +
-      "<ul>" + tips.map(function(t) { return "<li>" + t + "</li>"; }).join("") + "</ul>";
+    menuCount.textContent = String(state.menu.length);
+    orderCount.textContent = String(totals.itemCount);
+    orderTotal.textContent = formatCurrency(totals.total);
+    summaryTotal.textContent = formatCurrency(totals.total);
+    heroBalance.textContent = formatCurrency(state.balance);
+    walletBalance.textContent = formatCurrency(state.balance);
+    checkoutBtn.disabled = totals.total <= 0;
+    clearOrderBtn.disabled = totals.total <= 0;
+  }
 
-    resultsSection.classList.remove("hidden");
-    resultsSection.scrollIntoView({ behavior: "smooth" });
+  function persistAndRender() {
+    saveState();
+    renderMenu();
+    renderOrder();
+  }
+
+  function addToOrder(itemId) {
+    state.order[itemId] = (state.order[itemId] || 0) + 1;
+    persistAndRender();
+
+    const item = getMenuItem(itemId);
+    if (item) {
+      setStatus(item.name + " added to the order.");
+    }
+  }
+
+  function changeQuantity(itemId, amount) {
+    const nextQuantity = (state.order[itemId] || 0) + amount;
+
+    if (nextQuantity <= 0) {
+      delete state.order[itemId];
+    } else {
+      state.order[itemId] = nextQuantity;
+    }
+
+    persistAndRender();
+  }
+
+  function removeMenuItem(itemId) {
+    const item = getMenuItem(itemId);
+    state.menu = state.menu.filter(function (menuItem) {
+      return menuItem.id !== itemId;
+    });
+    delete state.order[itemId];
+    persistAndRender();
+
+    if (item) {
+      setStatus(item.name + " removed from the menu.");
+    }
+  }
+
+  menuForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const name = itemNameInput.value.trim();
+    const category = itemCategoryInput.value.trim();
+    const price = Number(itemPriceInput.value);
+
+    if (!name || !Number.isFinite(price) || price <= 0) {
+      setStatus("Enter a valid item name and price.");
+      return;
+    }
+
+    state.menu.unshift({
+      id: "item-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7),
+      name: name,
+      category: category,
+      price: Number(price.toFixed(2)),
+    });
+
+    menuForm.reset();
+    persistAndRender();
+    setStatus(name + " added to your menu.");
+    itemNameInput.focus();
   });
+
+  clearOrderBtn.addEventListener("click", function () {
+    state.order = {};
+    persistAndRender();
+    setStatus("The current order has been cleared.");
+  });
+
+  checkoutBtn.addEventListener("click", function () {
+    const totals = getOrderTotals();
+
+    if (!totals.total) {
+      setStatus("Add items before taking payment.");
+      return;
+    }
+
+    state.balance = Number((state.balance + totals.total).toFixed(2));
+    state.order = {};
+    persistAndRender();
+    setStatus("Payment received. " + formatCurrency(totals.total) + " was added to your fake balance.");
+  });
+
+  resetBalanceBtn.addEventListener("click", function () {
+    state.balance = 0;
+    persistAndRender();
+    setStatus("Your fake balance has been reset.");
+  });
+
+  persistAndRender();
 })();

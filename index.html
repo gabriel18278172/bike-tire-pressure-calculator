@@ -3,157 +3,130 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Bike Tire Pressure Calculator (MTB, Road, PSI Tool)</title>
-  <meta name="description" content="Free bike tire pressure calculator for mountain bikes, road bikes, and more. Get the perfect PSI based on your weight, tire width, and riding conditions.">
-
+  <title>Menu Manager & Fake Checkout</title>
+  <meta
+    name="description"
+    content="Build a menu, add customer orders, and track a pretend balance in a polished fake checkout app."
+  >
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>🚲 Bike Tire Pressure Calculator</h1>
-
-      <p class="subtitle">
-        Stop guessing your tire pressure — get it right instantly
-      </p>
-
-      <button onclick="copyLink()" class="share-btn">
-        🔗 Share This Tool
-      </button>
-    </header>
-
-    <form id="pressureForm">
-      <div class="unit-toggle">
-        <button type="button" class="toggle-btn active" data-unit="imperial">Imperial (lb / ft)</button>
-        <button type="button" class="toggle-btn" data-unit="metric">Metric (kg / cm)</button>
+  <main class="app-shell">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Pretend money only</p>
+        <h1>Menu Manager & Order Checkout</h1>
+        <p class="hero-copy">
+          Add menu items, build customer orders, collect fake payments, and watch your balance grow.
+        </p>
       </div>
-
-      <div class="input-group">
-        <label for="weight">Weight</label>
-        <div class="input-with-unit">
-          <input type="number" id="weight" placeholder="Enter your weight" min="1" required>
-          <span class="unit-label" id="weightUnit">lb</span>
+      <div class="hero-badge">
+        <span>💳</span>
+        <div>
+          <strong id="heroBalance">$0.00</strong>
+          <p>Fake balance</p>
         </div>
       </div>
+    </section>
 
-      <div class="input-group">
-        <label for="height">Height</label>
-        <div class="input-with-unit">
-          <input type="number" id="height" placeholder="e.g. 5.8 for 5 ft 10 in" min="1" step="0.1" required>
-          <span class="unit-label" id="heightUnit">ft</span>
-        </div>
-      </div>
+    <section class="stats-grid" aria-label="App overview">
+      <article class="stat-card">
+        <span class="stat-label">Menu Items</span>
+        <strong class="stat-value" id="menuCount">0</strong>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Current Order</span>
+        <strong class="stat-value" id="orderTotal">$0.00</strong>
+      </article>
+      <article class="stat-card">
+        <span class="stat-label">Items in Order</span>
+        <strong class="stat-value" id="orderCount">0</strong>
+      </article>
+    </section>
 
-      <div class="input-group">
-        <label for="bikeType">Bike Type</label>
-        <select id="bikeType" required>
-          <option value="" disabled selected>Select your bike type</option>
-          <option value="road">Road Bike</option>
-          <option value="hybrid">Hybrid / Commuter</option>
-          <option value="mountain">Mountain Bike</option>
-          <option value="gravel">Gravel / Cyclocross</option>
-          <option value="fat">Fat Bike</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label for="tireWidth">Tire Width (mm)</label>
-        <input type="number" id="tireWidth" placeholder="e.g. 25, 32, 40" min="20" max="120" required>
-      </div>
-
-      <div class="input-group tubeless-group">
-        <label class="toggle-label">
-          <span class="toggle-text">Tubeless Tires</span>
-          <div class="tubeless-toggle">
-            <input type="checkbox" id="tubeless">
-            <span class="slider"></span>
+    <section class="workspace">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Menu builder</p>
+            <h2>Create a menu item</h2>
           </div>
-        </label>
-        <p class="tubeless-hint">Tubeless tires can safely run at lower pressures for better grip and comfort.</p>
-      </div>
-
-      <div class="input-group">
-        <label for="terrain">Riding Conditions</label>
-        <select id="terrain">
-          <option value="dry">Dry Pavement</option>
-          <option value="wet">Wet / Rainy</option>
-          <option value="mixed">Mixed Terrain</option>
-          <option value="offroad">Off-Road / Trail</option>
-        </select>
-      </div>
-
-      <button type="submit" class="calculate-btn">Calculate Pressure</button>
-    </form>
-
-    <div id="results" class="results hidden">
-      <h2>Recommended Tire Pressure</h2>
-
-      <div class="setup-badge" id="setupBadge"></div>
-
-      <div class="pressure-cards">
-        <div class="pressure-card front">
-          <div class="tire-label">Front Tire</div>
-          <div class="pressure-value" id="frontPressure">--</div>
-          <div class="pressure-unit">PSI</div>
-        </div>
-        <div class="pressure-card rear">
-          <div class="tire-label">Rear Tire</div>
-          <div class="pressure-value" id="rearPressure">--</div>
-          <div class="pressure-unit">PSI</div>
-        </div>
-      </div>
-
-      <div class="pressure-range">
-        <h3>Acceptable Range</h3>
-        <p id="rangeText">--</p>
-      </div>
-
-      <div class="tips" id="tips"></div>
-
-      <div class="donate-section">
-        <p>🙏 This tool is 100% free — support it if it helped you ❤️</p>
-
-        <div class="donate-buttons">
-          <a href="https://buy.stripe.com/28E6oH3uzelodpA7cu3ZK02" target="_blank" onclick="track('tip-1')" class="donate-btn">$1</a>
-          <a href="https://buy.stripe.com/fZu14nghl3GK4T468q3ZK01" target="_blank" onclick="track('tip-3')" class="donate-btn">$3</a>
-          <a href="https://buy.stripe.com/cNi3cvghlfpsbhs1Sa3ZK00" target="_blank" onclick="track('tip-5')" class="donate-btn">$5</a>
+          <span class="panel-icon">🍽️</span>
         </div>
 
-        <p class="built-by">Built by an independent developer 🚀</p>
+        <form id="menuForm" class="menu-form">
+          <label>
+            Item name
+            <input id="itemName" name="itemName" type="text" maxlength="40" placeholder="Ex: Cheeseburger" required>
+          </label>
+
+          <div class="form-row">
+            <label>
+              Category
+              <input id="itemCategory" name="itemCategory" type="text" maxlength="24" placeholder="Ex: Main dish">
+            </label>
+
+            <label>
+              Price
+              <div class="price-input">
+                <span>$</span>
+                <input id="itemPrice" name="itemPrice" type="number" min="0.01" step="0.01" placeholder="0.00" required>
+              </div>
+            </label>
+          </div>
+
+          <button class="primary-btn" type="submit">Add to menu</button>
+        </form>
+
+        <div class="panel-subheader">
+          <h3>Your menu</h3>
+          <p>Tap an item to add it to the customer order.</p>
+        </div>
+
+        <div id="menuList" class="menu-list" aria-live="polite"></div>
       </div>
-    </div>
 
-    <footer class="footer">
-      <p>⚠️ These are recommendations. Always stay within the min/max range printed on your tire sidewall.</p>
-      <p class="copyright">© 2026 Gabriel Berg. All rights reserved.</p>
-    </footer>
-  </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Checkout</p>
+            <h2>Current customer order</h2>
+          </div>
+          <span class="panel-icon">🧾</span>
+        </div>
 
-  <!-- SHARE FUNCTION (UPDATED) -->
-  <script>
-    function copyLink() {
-      navigator.clipboard.writeText(window.location.href);
-      track("share");
-      alert("Link copied! Share it with friends 🚴");
-    }
-  </script>
+        <div id="orderList" class="order-list" aria-live="polite"></div>
+
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Items total</span>
+            <strong id="summaryTotal">$0.00</strong>
+          </div>
+          <div class="summary-row muted">
+            <span>Payment type</span>
+            <span>Pretend cash</span>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="clearOrderBtn" class="secondary-btn" type="button">Clear order</button>
+          <button id="checkoutBtn" class="primary-btn" type="button">Pay & add to balance</button>
+        </div>
+
+        <div class="wallet-card">
+          <div>
+            <p class="panel-kicker">Wallet</p>
+            <h3 id="walletBalance">$0.00</h3>
+            <p class="wallet-copy">Every fake payment goes into your balance.</p>
+          </div>
+          <button id="resetBalanceBtn" class="ghost-btn" type="button">Reset balance</button>
+        </div>
+
+        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
 
   <script src="app.js"></script>
-
-  <!-- TRACKING -->
-  <script>
-    function track(event) {
-      fetch("https://bike-analytics.vercel.app/api/track?event=" + event);
-    }
-
-    // Track visit
-    track("visit");
-
-    // Track calculator usage
-    document.getElementById("pressureForm").addEventListener("submit", () => {
-      track("calculate");
-    });
-  </script>
 </body>
 </html>
