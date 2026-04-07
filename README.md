@@ -1,5 +1,14 @@
 # bike-tire-pressure-calculator
-Calculate your bike tire pressure in seconds! Just type in your weight, hight, bike type, tire width, riding conditions, and if you have tubeless tires! 
+
+A polished static menu manager and fake checkout app.
+
+## Features
+
+- Add custom menu items with a name, category, and price
+- Build a customer order from the menu
+- Adjust quantities or remove items from the order
+- Take a fake payment and add it to your fake balance
+- Keep menu items, orders, and balance saved in local storage
 
 ## License
 
